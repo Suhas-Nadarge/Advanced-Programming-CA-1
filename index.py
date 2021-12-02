@@ -39,24 +39,35 @@ class Employee:
             if staff_ID == j['StaffID']:
                 self.currentEmpDetails = j
                 print('current emp-> ',self.currentEmpDetails)
-            else:
-                print('Please enter correct Staff-Number')
+
+        # if user enters wrong staff_ID, he will get warning message as below
+        if not self.currentEmpDetails:
+            print('Please enter correct Staff-Number')
+
+
         for p in self.allHoursDetails:
             if staff_ID == p['StaffID']:
              self.currentHoursDetails = p
              print('current Hour-> ',self.currentHoursDetails)   
 
-    def compute_payment(self,date,hours_worked):
+    def computePayment(self,date,hours_worked): 
         test_dict = {'hours': hours_worked,'date': date,'name':self.first_name}
         return test_dict     
 
-# Method to read text files and construct object for Employee and Hours details
+
+    def computeAllPayment():
+        print()
+
+# Step-1:Method to read text files and construct object for Employee and Hours details
 setData = Employee.constuctEmpHoursObject()
 
-# Create object for specifoc employee by passing Staff_ID
+# Step-2:Create object for specific employee by passing Staff_ID
 suhasObj = Employee('12346')
 
-# suhasObj.compute_payment('31/10/2021', '40')
+# Step-3:Call compute payment method by passing date and hours worked
+suhasObj.computePayment('31/10/2021', '40')
+
+
 
 
 
