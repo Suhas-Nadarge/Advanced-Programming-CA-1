@@ -9,7 +9,7 @@ class Employee:
     
     empPropertiesList = ['StaffID','LastName','FirstName','RegHours','HourlyRate','OTMultiple','TaxCredit','StandardBand']
     hourPropertiesList= ['StaffID','Date','HoursWorked']
-     
+    resultOutput = dict()
 
     with open ('Employees.txt', 'w') as f:
         f.write('12345 Green Joe 37 16 1.5 70 700 ,12346 Suhas Reddy 35 16 1.5 70 700')
@@ -21,9 +21,9 @@ class Employee:
 
 
     @classmethod
-    def constuctEmpHoursObject(cls):
+    def constuctEmpHoursObject(cls,empTextFile,hourTextFile):
         # Lets construct dictionary object for Employee with key-value pair by reading Employees.txt file
-        myEmpfile = open("Employees.txt", "rt")
+        myEmpfile = open(empTextFile, "rt")
         contents = myEmpfile.read()        
         myEmpfile.close()
         # Copied from  https://stackoverflow.com/questions/14658623/how-to-merge-2-list-as-a-key-value-pair-in-python
@@ -33,7 +33,7 @@ class Employee:
             # print(cls.allEmpDetails)
 
         # Lets construct dictionary object for Working Hours from Hours.txt same as we did for Employee
-        myHourfile = open("Hours.txt", "rt")
+        myHourfile = open(hourTextFile, "rt")
         contents = myHourfile.read()         
         myHourfile.close()
         for k in contents.split(','):
@@ -75,31 +75,39 @@ class Employee:
           else:
               self.higherRatePay = 0
 
-          self.higherTax = 0.4*self.higherRatePay
+          self.higherTax = round(0.4*self.higherRatePay, 2)
           self.standardTax = 0.2*float(self.currentEmpDetails['StandardBand'])
           
           self.totalTax = self.higherTax+self.standardTax
           self.netDeduction = self.totalTax-int(self.currentEmpDetails['TaxCredit'])
+          self.netDeduction = round(self.netDeduction,2)
           self.netPay = self.grossPay-self.netDeduction
           self.displayData()
 
+    # This method will display calculated data
     def displayData(self):
-        for item in vars(self):
-            print(item, ':', vars(self)[item])
+        # deleting properties which we created from txt file for iterating purpose
+        delattr(self, 'currentEmpDetails')
+        delattr(self, 'currentHoursDetails')
 
+        for item in vars(self):
+            # return dictionary object in key:value pair
+            self.resultOutput[item] = vars(self)[item]
+        print(self.resultOutput)
 
 
     # def computeAllPayment():
     #     print()
 
 # Step-1:Method to read text files and construct object for Employee and Hours details
-setData = Employee.constuctEmpHoursObject()
+setData = Employee.constuctEmpHoursObject("Employees.txt","Hours.txt")
 
 # Step-2:Create object for specific employee by passing Staff_ID
 suhasObj = Employee('12345')
 
 # Step-3:Call compute payment method by passing date and hours worked
-suhasObj.computePayment('31/10/2021', 40)
+suhasObj.computePayment('31/10/2021', 42)
+
 
 
 
