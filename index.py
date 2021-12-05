@@ -12,10 +12,11 @@ class Employee:
     resultOutput = dict()
 
     with open ('Employees.txt', 'w') as f:
-        f.write('12345 Green Joe 37 16 3 70 700 ,12346 Suhas Reddy 35 16 1.5 70 700')
+        f.write('12345 Green Joe 37 16 3 70 700 ,12346 Suhas Reddy 35 16 1.5 70 900')
+        # ***After each property space is mandatory***
         # <StaffID> <LastName> <FirstName> <RegHours> <HourlyRate> <OTMultiple> <TaxCredit> <StandardBand>
     with open('Hours.txt','w') as f:
-        f.write('12345 31/10/2021 42 ,12346 31/10/2021 40 ,12345 30/10/2021 63')
+        f.write('12345 30/10/2021 42 ,12346 31/10/2021 40 ,12345 31/10/2021 63')
         # <StaffID> <Date> <HoursWorked>
 
 
@@ -59,9 +60,8 @@ class Employee:
 
 
     def computePayment(self,date,hours_worked):
-        #   print(self.currentEmpDetails)
-        # Taken from https://techvidvan.com/tutorials/ternary-operator-in-python modified by me(for conditional statements)
-          self.name = self.currentEmpDetails['FirstName']+''+self.currentEmpDetails['LastName']
+        # Referred from https://techvidvan.com/tutorials/ternary-operator-in-python modified by me(for conditional statements)
+          self.name = self.currentEmpDetails['FirstName']+' '+self.currentEmpDetails['LastName']
           self.date = date
           self.regularHoursWorked = float(self.currentEmpDetails['RegHours'] if float(hours_worked) > float(self.currentEmpDetails['RegHours']) else hours_worked) 
           self.regularRate = self.currentEmpDetails['HourlyRate']
@@ -88,11 +88,12 @@ class Employee:
         # Taxes calculation ends
 
         # Deduction calculation starts
-          self.netDeduction = self.totalTax-int(self.currentEmpDetails['TaxCredit'])
+          self.taxCredit = float(self.currentEmpDetails['TaxCredit'])
+          self.netDeduction = self.totalTax-self.taxCredit
           self.netDeduction = round(self.netDeduction,2)
           self.netPay = self.grossPay-self.netDeduction
         # Deduction calculation ends  
-        
+
           self.displayData()
 
     # This method will display calculated data
@@ -108,23 +109,65 @@ class Employee:
              self.resultOutput[item] = vars(self)[item]
 
 
-        print(self.resultOutput)
+        # To rename the keys from dictionary object for displaying purpose
+        # Taken Reference from https://thewebdev.info/2021/10/29/how-to-rename-a-dictionary-key-with-python/ and modified by me
+        print('Before: ',self.resultOutput)
+        
+        self.resultOutput['Name'] = self.resultOutput.pop('name')
+        self.resultOutput['Date'] = self.resultOutput.pop('date')
+        self.resultOutput['Regular Hours Worked'] = self.resultOutput.pop('regularHoursWorked')
+        self.resultOutput['Overtime Hours Worked'] = self.resultOutput.pop('overtimeHoursWorked')
+        self.resultOutput['Regular Rate'] = self.resultOutput.pop('regularRate')
+        self.resultOutput['Over Time Rate'] = self.resultOutput.pop('overtimeRate')
+        self.resultOutput['Regular Pay'] = self.resultOutput.pop('regularPay')
+        self.resultOutput['Over Time Pay'] = self.resultOutput.pop('overtimePay')
+        self.resultOutput['Gross Pay'] = self.resultOutput.pop('grossPay')
+
+        self.resultOutput['Standard Rate Pay'] = self.resultOutput.pop('standardRatePay')
+        self.resultOutput['Higher Rate Pay'] = self.resultOutput.pop('higherRatePay')
+        self.resultOutput['Standard Tax'] = self.resultOutput.pop('standardTax')
+        self.resultOutput['Higher Tax'] = self.resultOutput.pop('higherTax')
+        self.resultOutput['Total Tax'] = self.resultOutput.pop('totalTax')
+        self.resultOutput['Tax Credit'] = self.resultOutput.pop('taxCredit')
+        self.resultOutput['Net Deductions'] = self.resultOutput.pop('netDeduction')
+        self.resultOutput['Net Pay'] = self.resultOutput.pop('netPay')
+
+        # final expected output
+        print('After: ',self.resultOutput)
 
 
+    # This method will work same as ComputePay() but here will iterate each record and calculate pay for all by reusing the ComputePay()
     def computeAllPayment():
-        print()
+        for index,element in enumerate(Employee.allHoursDetails):
+            print(element)
+            # Taken Reference from https://stackoverflow.com/questions/7125467/find-object-in-list-that-has-attribute-equal-to-some-value-that-meets-any-condi
+            # Mapping StaffID from both file to send them  to computePayment() as parameter
+            Employee.currentEmpDetails = next(x for x in Employee.allEmpDetails if x['StaffID']== element['StaffID'])
+            # We will create instances dynamically for each record
+            obj = Employee(Employee.currentEmpDetails['StaffID']) 
+            obj.computePayment(element['Date'], float(element['HoursWorked']))
+             
  
-# Step-1:Method to read text files and construct object for Employee and Hours details
+
+# Step-1:Method to read text files and construct object for Employee and Hours details----->Common for all(Individuals and Seperate Employee)
 setData = Employee.constuctEmpHoursObject("Employees.txt","Hours.txt")
 
-# Step-2:Create object for specific employee by passing Staff_ID
-suhasObj = Employee('12345')
 
-# Step-3:Call compute payment method by passing date and hours worked
-suhasObj.computePayment('31/10/2021', 42)
-suhasObj.computePayment('30/10/2021', 63)
+# ---------------Calculate for individual employee -------->Starts
+# Step-2:Create object for specific employee by passing respective Staff_ID
+empObj = Employee('12346')
 
-# suhasObj.computeAllPayment()
+# Step-3:Call compute payment method by passing date and hours worked()
+empObj.computePayment('30/10/2021', 42)
+empObj.computePayment('31/10/2021', 63) 
+# --------------Calculate for individual employee ---------->Ends
+
+
+
+# Calculate for all employees---------->starts
+Employee.computeAllPayment()
+# Calculate for individual employee----->Ends
+
 
 
 
