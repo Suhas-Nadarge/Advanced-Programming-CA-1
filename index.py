@@ -1,5 +1,4 @@
 import copy
-import json
 class Employee:
     allEmpDetails=[]
     allHoursDetails=[]
@@ -15,10 +14,10 @@ class Employee:
 
     with open ('Employees.txt', 'w') as f:
         f.write('12345 Green Joe 37 16 1.75 70 700 ,12346 Suhas Reddy 35 16 1.5 70 900 ,12347 John Nill 40 18 1.5 90 1100')
-        # ***After each property space is mandatory***
+        # ***After each property space is mandatory except last element***
         # <StaffID> <LastName> <FirstName> <RegHours> <HourlyRate> <OTMultiple> <TaxCredit> <StandardBand>
     with open('Hours.txt','w') as f:
-        f.write('12345 30/10/2021 42 ,12346 31/10/2021 40 ,12347 31/10/2021 63')
+        f.write('12345 30/10/2021 42 ,12346 31/10/2021 40 ,12347 21/10/2021 63 ,12347 31/10/2021 126')
         # <StaffID> <Date> <HoursWorked>
 
 
@@ -143,18 +142,22 @@ class Employee:
 
         return allObj     
 
-# Step-1:Method to read text files and construct object for Employee and Hours details----->Common for all(Individuals and Seperate Employee)
+
+
+# Step-1:Method to read text files and construct object for Employee and Hours details----->
+# Common for all(Individuals and ComputeAll Employee)
 setData = Employee.constuctEmpHoursObject("Employees.txt","Hours.txt")
 
 
 
 # Step-2:Create object for specific employee by passing respective Staff_ID
+# only applicable for individuals
 jg = Employee('12345')
+
 
 # Step-3:Call compute payment method by passing date and hours worked()
 print('Individual Employee Compute Pay: ',jg.computePayment('30/10/2021', 42))
 print()
-# print('Individual Employee Compute Pay: ',jg.computePayment('31/10/2021', 63) )
 
 
 

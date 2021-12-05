@@ -16,6 +16,8 @@ class testTest(unittest.TestCase):
 
   def testNegativeNetPay(self):
     self.assertGreaterEqual(jg['Net Pay'],0,'Net Pay cannot be negative')
+
+    
   
 
 # b = testTest()
