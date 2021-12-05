@@ -4,6 +4,7 @@ Create and test a function to compute net pay from payment, work, and tax credit
 Details of Variables and function used
  
  Global Variables:
+    
     1.allEmpDetails=[]
     Here we are storing all employees.txt data in dictionary format.
     
@@ -45,13 +46,14 @@ Details of Variables and function used
       we will return the result object to function. 
       
  
- Test cases:
-    We have added test cases for below scenario:
-      1.Net pay cannot exceed gross pay
-      2.Overtime pay cannot be negative
-      3.Overtime hours cannot be negative
-      4.Higher Tax cannot be negative
-      5.Net Pay cannot be negative
+  Test cases:
+  
+    1.Net pay cannot exceed gross pay
+    2.Overtime pay cannot be negative
+    3.Overtime hours cannot be negative
+    4.Higher Tax cannot be negative
+    5.Net Pay cannot be negative
+      
       
   
       
