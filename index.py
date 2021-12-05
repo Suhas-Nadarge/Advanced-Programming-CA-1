@@ -1,3 +1,5 @@
+import copy
+import json
 class Employee:
     allEmpDetails=[]
     allHoursDetails=[]
@@ -7,16 +9,16 @@ class Employee:
     regularHoursWorked,overtimeHoursWorked,regularRate,overtimeRate,regularPay,overtimePay,grossPay = 0,0,0,0,0,0,0
     standardRatePay,higherRatePay,standardTax,higherTax,totalTax,taxCredit,netDeduction,netPay = 0,0,0,0,0,0,0,0
     
-    empPropertiesList = ['StaffID','LastName','FirstName','RegHours','HourlyRate','OTMultiple','TaxCredit','StandardBand']
+    empPropertiesList = ['StaffID','FirstName','LastName','RegHours','HourlyRate','OTMultiple','TaxCredit','StandardBand']
     hourPropertiesList= ['StaffID','Date','HoursWorked']
     resultOutput = dict()
 
     with open ('Employees.txt', 'w') as f:
-        f.write('12345 Green Joe 37 16 3 70 700 ,12346 Suhas Reddy 35 16 1.5 70 900')
+        f.write('12345 Green Joe 37 16 1.75 70 700 ,12346 Suhas Reddy 35 16 1.5 70 900 ,12347 John Nill 40 18 1.5 90 1100')
         # ***After each property space is mandatory***
         # <StaffID> <LastName> <FirstName> <RegHours> <HourlyRate> <OTMultiple> <TaxCredit> <StandardBand>
     with open('Hours.txt','w') as f:
-        f.write('12345 30/10/2021 42 ,12346 31/10/2021 40 ,12345 31/10/2021 63')
+        f.write('12345 30/10/2021 42 ,12346 31/10/2021 40 ,12347 31/10/2021 63')
         # <StaffID> <Date> <HoursWorked>
 
 
@@ -31,7 +33,6 @@ class Employee:
         #  and modified by me for mapping keys to the values from Employees.txt and Hours.txt
         for i in contents.split(','):
             cls.allEmpDetails.append(dict(zip(cls.empPropertiesList,i.split(' '))))
-            # print(cls.allEmpDetails)
 
         # Lets construct dictionary object for Working Hours from Hours.txt same as we did for Employee
         myHourfile = open(hourTextFile, "rt")
@@ -39,14 +40,14 @@ class Employee:
         myHourfile.close()
         for k in contents.split(','):
             cls.allHoursDetails.append(dict(zip(cls.hourPropertiesList,k.split(' '))))
-            # print(cls.allHoursDetails)
             
 
+
+# This method is useful only while calculating individuals pay
     def __init__(self,staff_ID):
         for j in self.allEmpDetails:
             if staff_ID == j['StaffID']:
                 self.currentEmpDetails = j
-                # print('current emp object-> ',self.currentEmpDetails)
 
         # if user enters wrong staff_ID, he will get warning message as below
         if not self.currentEmpDetails:
@@ -55,9 +56,7 @@ class Employee:
         for p in self.allHoursDetails:
             if staff_ID == p['StaffID']:
              self.currentHoursDetails = p
-            #  print('current Hour object-> ',self.currentHoursDetails) 
           
-
 
     def computePayment(self,date,hours_worked):
         # Referred from https://techvidvan.com/tutorials/ternary-operator-in-python modified by me(for conditional statements)
@@ -81,38 +80,31 @@ class Employee:
           else:
               self.higherRatePay = 0
 
-        # Taxes calculation starts
+        # Taxes calculation
           self.higherTax = round(0.4*self.higherRatePay, 2)
           self.standardTax = 0.2*float(self.currentEmpDetails['StandardBand'])
           self.totalTax = self.higherTax+self.standardTax
-        # Taxes calculation ends
 
-        # Deduction calculation starts
+        # Deduction calculation
           self.taxCredit = float(self.currentEmpDetails['TaxCredit'])
           self.netDeduction = self.totalTax-self.taxCredit
           self.netDeduction = round(self.netDeduction,2)
           self.netPay = self.grossPay-self.netDeduction
-        # Deduction calculation ends  
 
-          self.displayData()
+          return self.displayData()
+
 
     # This method will display calculated data
     def displayData(self):
-        # deleting properties which we created from txt file for iterating purpose
-        # delattr(self, 'currentEmpDetails')
-        # delattr(self, 'currentHoursDetails')
-
         for item in vars(self):
             # return dictionary object in key:value pair
             # Exclude the current objects which we created from txt files for calculation purpose, as we don't need it in output
             if item not in ['currentEmpDetails','currentHoursDetails']:
              self.resultOutput[item] = vars(self)[item]
 
-
         # To rename the keys from dictionary object for displaying purpose
         # Taken Reference from https://thewebdev.info/2021/10/29/how-to-rename-a-dictionary-key-with-python/ and modified by me
-        print('Before: ',self.resultOutput)
-        
+        # print('Before: ',self.resultOutput)
         self.resultOutput['Name'] = self.resultOutput.pop('name')
         self.resultOutput['Date'] = self.resultOutput.pop('date')
         self.resultOutput['Regular Hours Worked'] = self.resultOutput.pop('regularHoursWorked')
@@ -122,7 +114,6 @@ class Employee:
         self.resultOutput['Regular Pay'] = self.resultOutput.pop('regularPay')
         self.resultOutput['Over Time Pay'] = self.resultOutput.pop('overtimePay')
         self.resultOutput['Gross Pay'] = self.resultOutput.pop('grossPay')
-
         self.resultOutput['Standard Rate Pay'] = self.resultOutput.pop('standardRatePay')
         self.resultOutput['Higher Rate Pay'] = self.resultOutput.pop('higherRatePay')
         self.resultOutput['Standard Tax'] = self.resultOutput.pop('standardTax')
@@ -133,41 +124,42 @@ class Employee:
         self.resultOutput['Net Pay'] = self.resultOutput.pop('netPay')
 
         # final expected output
-        print('After: ',self.resultOutput)
+        # print('After: ',self.resultOutput)
+        return self.resultOutput
+
 
 
     # This method will work same as ComputePay() but here will iterate each record and calculate pay for all by reusing the ComputePay()
     def computeAllPayment():
-        for index,element in enumerate(Employee.allHoursDetails):
-            print(element)
+        allObj =[]
+        for element in Employee.allHoursDetails:
             # Taken Reference from https://stackoverflow.com/questions/7125467/find-object-in-list-that-has-attribute-equal-to-some-value-that-meets-any-condi
             # Mapping StaffID from both file to send them  to computePayment() as parameter
             Employee.currentEmpDetails = next(x for x in Employee.allEmpDetails if x['StaffID']== element['StaffID'])
             # We will create instances dynamically for each record
-            obj = Employee(Employee.currentEmpDetails['StaffID']) 
-            obj.computePayment(element['Date'], float(element['HoursWorked']))
-             
- 
+            obj = Employee(Employee.currentEmpDetails['StaffID'])
+            # Deep copy is used because we are playing with object which is dynamically created 
+            allObj.append(copy.deepcopy(obj.computePayment(element['Date'], float(element['HoursWorked']))))
+
+        return allObj     
 
 # Step-1:Method to read text files and construct object for Employee and Hours details----->Common for all(Individuals and Seperate Employee)
 setData = Employee.constuctEmpHoursObject("Employees.txt","Hours.txt")
 
 
-# ---------------Calculate for individual employee -------->Starts
+
 # Step-2:Create object for specific employee by passing respective Staff_ID
-empObj = Employee('12346')
+jg = Employee('12345')
 
 # Step-3:Call compute payment method by passing date and hours worked()
-empObj.computePayment('30/10/2021', 42)
-empObj.computePayment('31/10/2021', 63) 
-# --------------Calculate for individual employee ---------->Ends
+print('Individual Employee Compute Pay: ',jg.computePayment('30/10/2021', 42))
+print()
+# print('Individual Employee Compute Pay: ',jg.computePayment('31/10/2021', 63) )
 
 
 
-# Calculate for all employees---------->starts
-Employee.computeAllPayment()
-# Calculate for individual employee----->Ends
-
+# Calculate for all employees
+print('Compute All Details: ',Employee.computeAllPayment())
 
 
 
